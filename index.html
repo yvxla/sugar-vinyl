@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f8dfd3">
+<meta name="description" content="Sugar Vinyl - レトロスイーツ風の音楽プレーヤー">
+<link rel="manifest" href="manifest.json">
+<title>Sugar Vinyl ♡</title>
+<style>
+:root{--cream:#fff6e8;--pink:#ed9ca5;--red:#a84854;--brown:#68453e;--mint:#a9c5a5;--yellow:#f6d890}
+*{box-sizing:border-box}
+body{margin:0;background:#f5e9dc;color:var(--brown);font-family:system-ui,-apple-system,"Hiragino Maru Gothic ProN",sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:540px;min-height:100dvh;margin:auto;background:var(--cream);border-inline:1px solid #e8c9ae}
+.top{padding:22px 20px 15px;background:#f8dfd3;border-bottom:1px dashed #d6ac98}
+.brand,.eyebrow{font-size:10px;letter-spacing:2px;font-weight:900;color:#a56c62}
+h1{font: bold 32px Georgia,serif;letter-spacing:-1px;margin:5px 0}
+.sub{font-size:11px;letter-spacing:1px;color:#9c7168}
+.body{padding:16px}
+.card{background:#fffdf7;border:1px solid #ead9c6;border-radius:19px;padding:15px;margin-bottom:13px;box-shadow:0 3px 0 #ecdaca}
+.player{text-align:center;background:#f5e6ce}
+.disc-wrap{width:min(61vw,226px);height:min(61vw,226px);margin:14px auto 16px}
+.disc{width:100%;height:100%;border-radius:50%;background:repeating-radial-gradient(circle,#242020 0px,#242020 3px,#393230 4px,#171615 7px,#282321 9px);border:5px solid #302722;display:grid;place-items:center;box-shadow:0 5px 12px #987b6155}
+.disc.playing{animation:spin 3.2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.label-disc{width:37%;height:37%;border-radius:50%;background:#e99ba5;border:4px solid #f7c7b8;display:flex;align-items:center;justify-content:center;flex-direction:column;line-height:1.2;box-shadow:0 0 0 2px #49312b}
+.label-disc .cherry{font-size:25px}.label-disc small{font-family:Georgia,serif;font-weight:bold;font-size:8px;letter-spacing:1px}
+.track-title{font-size:18px;font-weight:900;overflow-wrap:anywhere}
+.muted{font-size:11px;color:#a78374;margin-top:4px;overflow-wrap:anywhere}
+.progress{width:100%;accent-color:#bd6874;margin:14px 0 2px}
+.times{display:flex;justify-content:space-between;font-size:10px;color:#a17c70;font-variant-numeric:tabular-nums}
+.controls{display:flex;align-items:center;justify-content:center;gap:12px;margin:14px 0 8px}
+.iconbtn{border:0;background:transparent;color:#855c52;font-size:21px;padding:8px;min-width:42px;border-radius:50%}
+.playbtn{background:#b75e6b!important;color:#fff9ed!important;width:57px;height:57px;border-radius:50%;font-size:24px;box-shadow:0 4px 0 #8d4550}
+.active{color:#ae4e5c!important;background:#f7dfe0!important}
+.btn{border:1px solid #e3c9b6;border-radius:12px;padding:10px 12px;background:#fff6eb;color:#80584d;font-weight:800}
+.primary{background:#b75e6b;border-color:#b75e6b;color:white}
+.mint{background:#e2eddd;border-color:#c4d6bd;color:#587455}
+.small{font-size:11px;padding:8px 10px}
+.row{display:flex;align-items:center;gap:8px}.row>*{min-width:0}
+.section-title{font: bold 21px Georgia,serif;margin:6px 0 12px}
+.input,.select{width:100%;padding:11px 12px;border:1px solid #e5cdbb;background:#fffaf2;border-radius:11px;color:#68453e}
+.upload{display:block;text-align:center;border:1.5px dashed #cf998f;border-radius:14px;background:#fff4ef;padding:15px;cursor:pointer;margin:10px 0}
+.upload strong{display:block;font-size:13px;margin:5px}.upload small,.note{font-size:10px;color:#a17c70;line-height:1.8}
+.library-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed #eddfd0}
+.library-row:last-child{border-bottom:0}
+.number{width:34px;height:38px;flex-shrink:0;border-radius:10px;background:#f4e4d5;display:grid;place-items:center;font:13px Georgia,serif}
+.song{flex:1;min-width:0}.songname{font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.meta{font-size:10px;color:#b08c7d;margin-top:4px}.empty{text-align:center;padding:18px 6px;color:#a98779;font-size:12px;line-height:2}
+.status{font-size:10px;color:#7e9472;min-height:16px;margin-top:8px;overflow-wrap:anywhere}
+.foot{text-align:center;padding:0 0 20px;color:#bd9787;font-size:10px;letter-spacing:2px}
+.error{font-size:11px;line-height:1.7;color:#914c47;background:#fff0eb;border-radius:10px;padding:9px;margin-top:8px;overflow-wrap:anywhere}
+@media(min-width:430px){.body{padding:19px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="brand">✳ THE LITTLE MUSIC PATISSERIE ✳</div><h1>Sugar Vinyl ♡</h1><div class="sub">a little sweetness for your ears</div></header>
+<main class="body">
+<section class="card player">
+<div class="eyebrow">NOW SPINNING · <span id="total">0 TRACKS</span></div>
+<div class="disc-wrap"><div class="disc" id="disc"><div class="label-disc"><span class="cherry">🍒</span><small>SUGAR</small><small>RECORDS</small></div></div></div>
+<div class="track-title" id="title">Choose your first song</div><div class="muted" id="artist">your own little music world</div>
+<audio id="audio" preload="metadata" playsinline></audio>
+<input class="progress" id="progress" type="range" min="0" max="1000" value="0" aria-label="再生位置">
+<div class="times"><span id="current">0:00</span><span id="duration">0:00</span></div>
+<div class="controls"><button class="iconbtn" id="shuffle" aria-label="シャッフル">⤨</button><button class="iconbtn" id="prev" aria-label="前の曲">◂◂</button><button class="iconbtn playbtn" id="play" aria-label="再生">▶</button><button class="iconbtn" id="next" aria-label="次の曲">▸▸</button><button class="iconbtn" id="loop" aria-label="リピート">↻</button></div>
+<div class="muted" id="loop-caption">REPEAT OFF</div><div class="status" id="status" role="status" aria-live="polite">Ready when you are ♡</div><div id="error" class="error" hidden></div>
+</section>
+<section class="card">
+<div class="eyebrow">01 · YOUR MUSIC BOX</div><div class="section-title">Add sweet sounds</div>
+<label class="upload" for="files"><span style="font-size:25px">♫ ＋</span><strong>Choose music files</strong><small>MP3 · M4A · WAV · AAC · OGG</small></label>
+<input id="files" type="file" accept="audio/*,.mp3,.m4a,.wav,.aac,.ogg,.flac" multiple hidden>
+<div class="row"><select class="select" id="playlist" aria-label="プレイリスト" style="flex:1"></select><button class="btn small" id="newlist">＋ New</button></div>
+<p class="note">音源はこのブラウザの端末内ストレージに保存するよ♡ 元ファイルも残しておくと安心だよ</p>
+</section>
+<section class="card">
+<div class="row" style="justify-content:space-between;flex-wrap:wrap"><div><div class="eyebrow">02 · THE COLLECTION</div><div class="section-title" style="margin-bottom:3px">My playlist</div></div><span class="eyebrow" id="list-count">0 SONGS</span></div>
+<div id="list"><div class="empty">🍰<br>Your playlist is waiting for a little music</div></div>
+<div class="row" style="margin-top:12px;flex-wrap:wrap"><button class="btn mint small" id="playall">▶ Play all</button><button class="btn small" id="clear">Clear playlist</button></div>
+</section>
+<section class="card" style="background:#f9e5e0">
+<div class="eyebrow">03 · LITTLE SETTINGS</div>
+<div class="row" style="justify-content:space-between;margin-top:8px"><div><strong>Shuffle play</strong><div class="note">Mix your music collection</div></div><button class="btn small" id="shuffle2">OFF</button></div>
+<div class="row" style="justify-content:space-between;margin-top:12px"><strong>Volume</strong><input id="volume" type="range" min="0" max="100" value="80" style="width:52%;accent-color:#b75e6b"></div>
+<p class="note">iPhoneでは画面ロック中の再生がOSやブラウザの動作に左右される場合があるよ</p>
+</section>
+<div class="foot">MADE WITH ♡ & SUGAR</div>
+</main>
+</div>
+<script>
+(()=>{
+const $=id=>document.getElementById(id),audio=$('audio');
+const DB='sugar-vinyl-web-v1';let db,tracks=[],playlists=['My Sweets'],currentList='My Sweets',currentId=null,objectURL=null,repeat=0,shuffle=false;
+const say=s=>$('status').textContent=s;
+const showError=s=>{$('error').hidden=!s;$('error').textContent=s||''};
+const fmt=t=>Number.isFinite(t)&&t>=0?Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0'):'0:00';
+const activeTracks=()=>tracks.filter(t=>t.playlist===currentList).sort((a,b)=>a.added-b.added);
+const current=()=>tracks.find(t=>t.id===currentId);
+function openDB(){return new Promise((resolve,reject)=>{if(!indexedDB)return reject(Error('このブラウザはIndexedDBに対応していません'));const q=indexedDB.open(DB,1);q.onupgradeneeded=()=>q.result.createObjectStore('tracks',{keyPath:'id'});q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error)})}
+function tx(mode,fn){return new Promise((resolve,reject)=>{const t=db.transaction('tracks',mode),s=t.objectStore('tracks');let v;try{v=fn(s)}catch(e){reject(e);return}t.oncomplete=()=>resolve(v);t.onerror=()=>reject(t.error);t.onabort=()=>reject(t.error||Error('保存失敗'))})}
+function getAll(){return new Promise((resolve,reject)=>{const q=db.transaction('tracks','readonly').objectStore('tracks').getAll();q.onsuccess=()=>resolve(q.result||[]);q.onerror=()=>reject(q.error)})}
+function savePrefs(){try{localStorage.setItem('sv-playlists',JSON.stringify(playlists));localStorage.setItem('sv-list',currentList);localStorage.setItem('sv-track',currentId||'')}catch(e){say('設定を保存できませんでした')}}
+function paintLists(){const s=$('playlist');s.replaceChildren();playlists.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent='♡ '+p;s.append(o)});s.value=currentList}
+function paint(){const t=current(),arr=activeTracks();$('title').textContent=t?t.name:'Choose your first song';$('artist').textContent=t?(t.type||'Local audio file'):'your own little music world';$('total').textContent=tracks.length+' TRACKS';$('list-count').textContent=arr.length+' SONGS';$('play').textContent=audio.paused?'▶':'Ⅱ';$('disc').classList.toggle('playing',!audio.paused);$('loop').classList.toggle('active',repeat!==0);$('loop-caption').textContent=['REPEAT OFF','REPEAT ALL','REPEAT ONE'][repeat];$('shuffle').classList.toggle('active',shuffle);$('shuffle2').textContent=shuffle?'ON':'OFF';const host=$('list');host.replaceChildren();if(!arr.length){const d=document.createElement('div');d.className='empty';d.textContent='🍰 Your playlist is waiting for a little music';host.append(d)}else arr.forEach((t,i)=>{const row=document.createElement('div');row.className='library-row';const n=document.createElement('div');n.className='number';n.textContent=t.id===currentId&&!audio.paused?'♫':String(i+1).padStart(2,'0');const info=document.createElement('div');info.className='song';const name=document.createElement('div');name.className='songname';name.textContent=t.name;const meta=document.createElement('div');meta.className='meta';meta.textContent=t.id===currentId?'NOW PLAYING':'Audio file';info.append(name,meta);const b=document.createElement('button');b.className='btn small';b.textContent=t.id===currentId&&!audio.paused?'Ⅱ':'▶';b.onclick=()=>playTrack(t.id);const del=document.createElement('button');del.className='iconbtn';del.textContent='×';del.setAttribute('aria-label','削除 '+t.name);del.onclick=()=>deleteTrack(t.id);row.append(n,info,b,del);host.append(row)})}
+function diagnose(e){let msg=(e&&e.name||'Error')+' / '+(e&&e.message||'詳細なし');if(e&&e.name==='NotSupportedError')msg+='。ブラウザがこの音源ソースを再生できないか、埋め込み環境の制限が考えられます。Safariで公開URLを開いて再度試してください';showError(msg);say('再生できませんでした');paint()}
+async function loadTrack(id,autoplay=true){const t=tracks.find(x=>x.id===id);if(!t)return;currentId=id;savePrefs();try{audio.pause();if(objectURL)URL.revokeObjectURL(objectURL);objectURL=URL.createObjectURL(t.blob);audio.removeAttribute('src');audio.load();audio.src=objectURL;audio.load();$('progress').value=0;$('current').textContent='0:00';$('duration').textContent='0:00';showError('');paint();if(autoplay)await start();else say('Track loaded ♡')}catch(e){diagnose(e)}}
+async function start(){if(!currentId){const a=activeTracks();if(a.length)return loadTrack(a[0].id,true);say('先に音源ファイルを追加してね ♡');return}try{showError('');const p=audio.play();if(p&&p.then)await p;say('Now playing ♡');paint()}catch(e){diagnose(e)}}
+async function playTrack(id){if(currentId===id&&audio.src){if(audio.paused)await start();else audio.pause();paint()}else await loadTrack(id,true)}
+function advance(dir){const a=activeTracks();if(!a.length)return;let i=a.findIndex(t=>t.id===currentId);if(shuffle&&dir===1&&a.length>1){let j;do{j=Math.floor(Math.random()*a.length)}while(a[j].id===currentId);playTrack(a[j].id);return}let j=i+dir;if(i<0)j=dir>0?0:a.length-1;if(j>=a.length){if(repeat===1)j=0;else{audio.pause();say('Playlist finished ♡');return}}if(j<0)j=a.length-1;playTrack(a[j].id)}
+$('play').onclick=()=>audio.paused?start():audio.pause();$('prev').onclick=()=>audio.currentTime>3?audio.currentTime=0:advance(-1);$('next').onclick=()=>advance(1);
+$('loop').onclick=()=>{repeat=(repeat+1)%3;audio.loop=repeat===2;paint()};function toggleShuffle(){shuffle=!shuffle;paint()}$('shuffle').onclick=toggleShuffle;$('shuffle2').onclick=toggleShuffle;
+$('volume').oninput=e=>audio.volume=Number(e.target.value)/100;audio.volume=.8;
+$('progress').oninput=e=>{if(Number.isFinite(audio.duration)&&audio.duration>0)audio.currentTime=Number(e.target.value)/1000*audio.duration};
+audio.ontimeupdate=()=>{if(Number.isFinite(audio.duration)&&audio.duration>0)$('progress').value=Math.round(audio.currentTime/audio.duration*1000);$('current').textContent=fmt(audio.currentTime)};
+audio.onloadedmetadata=()=>{$('duration').textContent=fmt(audio.duration)};
+audio.onplay=paint;audio.onpause=paint;
+audio.onended=()=>{if(repeat===2){audio.currentTime=0;start()}else advance(1)};
+audio.onerror=()=>{const e=audio.error;const d={1:'読み込みが中断されました',2:'音源の読み込みに失敗しました',3:'音源のデコードに失敗しました',4:'この音源ソースまたは形式は対応していません'};showError('MediaError '+(e?e.code:'?')+': '+(e?(d[e.code]||e.message||'不明なエラー'):'音声エラー'))};
+$('files').onchange=async e=>{const fs=Array.from(e.target.files||[]);if(!fs.length)return;say('音源を保存中…');let count=0;for(const f of fs){if(!f.type.startsWith('audio/')&&!/\.(mp3|m4a|wav|aac|ogg|flac|opus)$/i.test(f.name))continue;const id='track-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);try{await tx('readwrite',s=>s.put({id,name:f.name.replace(/\.[^.]+$/,''),type:f.type||'Audio file',size:f.size,blob:f,playlist:currentList,added:Date.now()+count}));count++}catch(ex){say('保存に失敗しました。ストレージ容量を確認してね');break}}tracks=await getAll();paint();showError('');say(count?count+'曲を保存したよ ♡':'音源を追加できませんでした');if(count&&currentId===null){const a=activeTracks();if(a.length)await loadTrack(a[0].id,false)}e.target.value=''};
+$('playlist').onchange=e=>{currentList=e.target.value;savePrefs();paint();say('Playlist: '+currentList)};
+$('newlist').onclick=()=>{const n=prompt('プレイリスト名 ♡');if(!n||!n.trim())return;const p=n.trim().slice(0,45);if(playlists.includes(p)){say('同じ名前があるよ');return}playlists.push(p);currentList=p;savePrefs();paintLists();paint();say('Playlist created ♡')};
+$('playall').onclick=()=>{const a=activeTracks();if(a.length)playTrack(a[0].id);else say('先に曲を追加してね ♡')};
+async function deleteTrack(id){const t=tracks.find(x=>x.id===id);if(!t||!confirm('「'+t.name+'」を削除しますか？'))return;if(id===currentId){audio.pause();audio.removeAttribute('src');audio.load();if(objectURL)URL.revokeObjectURL(objectURL);objectURL=null;currentId=null}await tx('readwrite',s=>s.delete(id));tracks=await getAll();paint();savePrefs();say('Track removed')}
+$('clear').onclick=async()=>{const a=activeTracks();if(!a.length||!confirm('このプレイリストの曲と保存音源を削除しますか？'))return;for(const t of a){if(t.id===currentId){audio.pause();audio.removeAttribute('src');audio.load();if(objectURL)URL.revokeObjectURL(objectURL);objectURL=null;currentId=null}await tx('readwrite',s=>s.delete(t.id))}tracks=await getAll();paint();savePrefs();say('Playlist cleared')};
+(async()=>{try{db=await openDB();tracks=await getAll();try{const ps=JSON.parse(localStorage.getItem('sv-playlists')||'null');if(Array.isArray(ps)&&ps.length)playlists=[...new Set(ps.filter(x=>typeof x==='string'&&x.trim()))];currentList=localStorage.getItem('sv-list')||playlists[0];if(!playlists.includes(currentList))currentList=playlists[0]}catch(e){}paintLists();paint();const id=localStorage.getItem('sv-track');if(id&&tracks.some(t=>t.id===id))await loadTrack(id,false);say(tracks.length?'Your music is saved on this device ♡':'Ready when you are ♡');if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{})}catch(e){say('保存機能を初期化できませんでした');showError(e.message||String(e))}})();
+})();
+</script>
+</body>
+</html>

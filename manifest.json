@@ -1,0 +1,11 @@
+{
+  "name": "Sugar Vinyl",
+  "short_name": "Sugar Vinyl",
+  "description": "レトロスイーツ風の音楽プレーヤー",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff6e8",
+  "theme_color": "#f8dfd3",
+  "icons": []
+}
